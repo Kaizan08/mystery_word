@@ -8,9 +8,30 @@
     </head>
     <body>
         <section class="info">
-            <div>Mystery Word</div>
-            <div>{{#gamemode}}{{.}}{{/gamemode}}</div>
-            <div>{{#guess}}You have {{.}} guesses left!{{/guesses}}
+            <div class="left">Mystery Word</div>
+            <div class="center">{{#gamemode}}{{.}} Mode{{/gamemode}}</div>
+            <div class="right">{{#guess}}You have {{.}} guesses left!{{/guess}}
         </section>
+        {{^gamemode}}
+        <section class="start">
+            <form method="POST" action="/" class="type_form"> 
+                <p><input type="radio" name="mode" value="Easy"> Easy</p>
+                <p><input type="radio" name="mode" value="Normal"> Normal</p>
+                <p><input type="radio" name="mode" value="Hard"> Hard</p> 
+                <p><input type="submit"></p>
+            </form>
+        </section>
+        {{/gamemode}}
+        {{#gamemode}}
+        <section class="hangman">
+
+        </section>
+        <section class="game">
+            <form method="POST" action="/">
+            <input type="text" name="choice">
+            <input type="submit">
+            </form>
+        </section>
+        {{/gamemode}}
     </body>
 </html>

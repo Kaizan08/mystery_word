@@ -14,7 +14,7 @@ app.set("view engine", "mustache");
 
 
 //Middleware
-app.use("/", express.static("./public"))
+app.use("/", express.static("./public"));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(session(sessionConfig));
 
@@ -24,34 +24,37 @@ var guessesLeft = 8;
 var mode;
 
 function game(type){
-    if (type == 'easy'){
-        var word = words.filter(function(str){return (str.length >= 4 & str.length <= 6);})
+    if (type == 'Easy'){
+        var word = words.filter(function(str){return (str.length >= 4 & str.length <= 6);});
         var randomWord = word[Math.floor(Math.random() * word.length)];
-    } else if (type == 'normal'){
-        var word = words.filter(function(str){return (str.length >= 6 & str.length <= 8);})
+    } else if (type == 'Normal'){
+        var word = words.filter(function(str){return (str.length >= 6 & str.length <= 8);});
         var randomWord = word[Math.floor(Math.random() * word.length)];
     } else {
-        var word = words.filter(function(str){return (str.length >8);})
+        var word = words.filter(function(str){return (str.length >8);});
         var randomWord = word[Math.floor(Math.random() * word.length)];
     }
-    req.session.word = randomWord;
+    return randomWord;
 }
 
 app.get("/", function(req, res){
     if (!req.session.word){
         res.render("index");
     } else{
-        res.render("index", {guess: guessesLeft, guessedLetters: lettersGuessed, gamemode:mode})
+        res.render("index", {guess: guessesLeft, guessedLetters: lettersGuessed, gamemode:mode});
     }
 })
 
 app.post("/", function(req, res){
     if (req.body.mode){ //call mode function to get word and set it
-        game(req.body.mode);
+        console.log(req.body.mode)
+        var randomWord = game(req.body.mode);
+        req.session.word = randomWord;
         mode = req.body.mode;
         res.redirect("/");
     }
 })
+
 app.listen(port, function(){
     console.log('Server started on port', port);
 })

@@ -1,0 +1,21 @@
+.type_form{
+    display: flex;
+}
+.type_form p{
+    margin: 0 10px;
+}
+.info{
+    display:flex;
+}
+.info div{
+    width: calc(100%/3);
+}
+.left{
+    text-align: left;
+}
+.right{
+    text-align: right;
+}
+.center{
+    text-align: center;
+}
