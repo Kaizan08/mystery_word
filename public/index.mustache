@@ -24,14 +24,22 @@
         {{/gamemode}}
         {{#gamemode}}
         <section class="hangman">
-
+            {{#hangman}}{{.}}{{/hangman}}
         </section>
         <section class="game">
             <form method="POST" action="/">
-            <input type="text" name="choice">
-            <input type="submit">
+                <input type="text" name="choice">
+                <input type="submit">
             </form>
         </section>
         {{/gamemode}}
+        <section class="letters">
+            {{#gamemode}}
+            <p>Letters Guessed: {{guessedLetters}} 
+                {{^guessedLetters}}
+                None 
+                {{/guessedLetters}}</p>
+            {{/gamemode}}
+        </section>
     </body>
 </html>

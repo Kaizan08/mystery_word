@@ -22,6 +22,32 @@ app.use(session(sessionConfig));
 var lettersGuessed =[];
 var guessesLeft = 8;
 var mode;
+var randomWord;
+
+function displaygame(array, wordLen){
+    console.log(array)
+    var display = ''
+    if(array.length == 0){ //no guesses yet
+        for(var i=0; i<wordLen;i++){
+            display += '_ '
+        }
+    } else {
+        for(var i=0;i<randomWord.length; i++){
+            var counter = 0;
+            for(var j=0;j<lettersGuessed.length;j++){
+                if(lettersGuessed[j]==randomWord[i]){
+                    display += lettersGuessed[j]+' ';
+                    counter = 1;
+                }
+            }
+            if (counter==0){
+                display += '_ '
+            }    
+        }
+    }
+    guessesLeft -= 1;
+    return display;
+}
 
 function game(type){
     if (type == 'Easy'){
@@ -41,16 +67,24 @@ app.get("/", function(req, res){
     if (!req.session.word){
         res.render("index");
     } else{
-        res.render("index", {guess: guessesLeft, guessedLetters: lettersGuessed, gamemode:mode});
+        console.log(req.session.word.length);
+        var hangman = displaygame(lettersGuessed, req.session.word.length);
+        console.log(hangman);
+        res.render("index", {guess: guessesLeft, guessedLetters: lettersGuessed, gamemode:mode, hangman:hangman.toString()});
     }
 })
 
 app.post("/", function(req, res){
     if (req.body.mode){ //call mode function to get word and set it
-        console.log(req.body.mode)
-        var randomWord = game(req.body.mode);
-        req.session.word = randomWord;
+        randomWord = game(req.body.mode).toUpperCase();
+        console.log(randomWord);
+        req.session.word = randomWord.toUpperCase();
         mode = req.body.mode;
+        res.redirect("/");
+    } else{
+        console.log(req.body.choice.toUpperCase());
+        //check for valid letter
+        lettersGuessed.push(req.body.choice.toUpperCase());
         res.redirect("/");
     }
 })
