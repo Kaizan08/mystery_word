@@ -32,20 +32,22 @@ function displaygame(array, wordLen){
             display += '_ '
         }
     } else {
+        var correctguess=0;
+        var counter;
         for(var i=0;i<randomWord.length; i++){
-            var counter = 0;
+            counter = 0;
             for(var j=0;j<lettersGuessed.length;j++){
                 if(lettersGuessed[j]==randomWord[i]){
                     display += lettersGuessed[j]+' ';
                     counter = 1;
+                    correctguess =+ 1;
                 }
             }
             if (counter==0){
                 display += '_ '
             }    
         }
-    }
-    guessesLeft -= 1;
+    }//end else
     return display;
 }
 
