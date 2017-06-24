@@ -23,57 +23,73 @@ var lettersGuessed =[];
 var guessesLeft = 8;
 var mode;
 var randomWord;
+var hangman;
 
-function displaygame(array, wordLen){
-    console.log(array)
-    var display = ''
-    if(array.length == 0){ //no guesses yet
+function displaygame(letter, wordLen){
+    var display = '';
+    if(letter == -1){ //no guesses yet
         for(var i=0; i<wordLen;i++){
-            display += '_ '
+            display += '_ ';
         }
-    } else {
-        var correctguess=0;
-        var counter;
-        for(var i=0;i<randomWord.length; i++){
-            counter = 0;
-            for(var j=0;j<lettersGuessed.length;j++){
-                if(lettersGuessed[j]==randomWord[i]){
-                    display += lettersGuessed[j]+' ';
-                    counter = 1;
-                    correctguess =+ 1;
+        return display;
+    } 
+    else {
+        if (randomWord.indexOf(letter) >= 0){ //letter found in word
+            var correctguess=0;
+            var counter;
+            for(var i=0;i<randomWord.length; i++){
+                counter = 0;
+                for(var j=0;j<lettersGuessed.length;j++){
+                    if(lettersGuessed[j]==randomWord[i]){
+                        display += lettersGuessed[j]+' ';
+                        counter = 1;
+                        correctguess =+ 1;
+                    }
                 }
+                if (counter==0){
+                    display += '_ ';
+                }    
             }
-            if (counter==0){
-                display += '_ '
-            }    
+            return display; 
+        } else { //decrement guesses left
+            guessesLeft -= 1;
         }
-    }//end else
-    return display;
+    return hangman;
 }
+};
 
 function game(type){
     if (type == 'Easy'){
         var word = words.filter(function(str){return (str.length >= 4 & str.length <= 6);});
-        var randomWord = word[Math.floor(Math.random() * word.length)];
     } else if (type == 'Normal'){
         var word = words.filter(function(str){return (str.length >= 6 & str.length <= 8);});
-        var randomWord = word[Math.floor(Math.random() * word.length)];
     } else {
         var word = words.filter(function(str){return (str.length >8);});
-        var randomWord = word[Math.floor(Math.random() * word.length)];
     }
+    randomWord = word[Math.floor(Math.random() * word.length)];
     return randomWord;
 }
 
 app.get("/", function(req, res){
+    var letter;
     if (!req.session.word){
         res.render("index");
     } else{
-        console.log(req.session.word.length);
-        var hangman = displaygame(lettersGuessed, req.session.word.length);
-        console.log(hangman);
+        if (guessesLeft > 1){
+            if(lettersGuessed.length == 0){
+                letter = -1;
+            } else{
+                letter = lettersGuessed[lettersGuessed.length-1];
+            }
+        hangman = displaygame(letter, req.session.word.length);
         res.render("index", {guess: guessesLeft, guessedLetters: lettersGuessed, gamemode:mode, hangman:hangman.toString()});
-    }
+        } else {
+            letter = lettersGuessed[lettersGuessed.length-1];
+            hangman = displaygame(letter, req.session.word.length);
+            console.log(req.session.word);
+            res.render("index", {guess: guessesLeft, guessedLetters: lettersGuessed, gamemode: mode, hangman:req.session.word});    
+        }
+    }   
 })
 
 app.post("/", function(req, res){
@@ -86,8 +102,16 @@ app.post("/", function(req, res){
     } else{
         console.log(req.body.choice.toUpperCase());
         //check for valid letter
-        lettersGuessed.push(req.body.choice.toUpperCase());
-        res.redirect("/");
+        if (lettersGuessed.length > 0 & lettersGuessed.indexOf(req.body.choice.toUpperCase()) == -1){
+            lettersGuessed.push(req.body.choice.toUpperCase());
+            res.redirect("/");
+        } else if(lettersGuessed.length == 0){
+            lettersGuessed.push(req.body.choice.toUpperCase());
+            res.redirect("/");
+        } else {
+            res.redirect("/");
+            //print error message duplicating letters already in array
+        }
     }
 })
 
