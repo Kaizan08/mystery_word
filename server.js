@@ -89,8 +89,21 @@ function game(type){
 
 function redLetters(displayWord, originalWord){
     //put comparison for red letters here
-    return displayWord;
+    var wordWithSpaces = ''
+    for(var i=0;i< originalWord.length; i++){
+        wordWithSpaces += originalWord[i]+' ';
+    }
+    var wordWithRed = '';
+    for(var j=0;j < displayWord.length; j++){
+        if (displayWord[j] == '_'){
+            wordWithRed += '<span id="red">'+wordWithSpaces[j]+'</span>';
+        } else{
+            wordWithRed += displayWord[j];
+        }
+    }
+    return wordWithRed;
 }
+
 app.get("/", function(req, res){
     var letter;
     var solved;
@@ -107,7 +120,9 @@ app.get("/", function(req, res){
             }
             hangman = displayGame(letter, req.session.word.length);
             //check if solved
+            console.log(hangman);
             solved = solve(hangman, req.session.word);
+            console.log(guessesLeft);
             if (!solved && guessesLeft == 0 ) { //convert to red for missing letters
                 hangman = redLetters(hangman, req.session.word);
                 res.render("index", {guess: guessesLeft, guessedLetters: lettersGuessed, gamemode:mode, hangman:hangman.toString(), solved:true, lost:true});
