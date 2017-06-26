@@ -25,7 +25,7 @@ var mode;
 var randomWord;
 var hangman;
 
-function displaygame(letter, wordLen){
+function displayGame(letter, wordLen){
     var display = '';
     if(letter == -1){ //no guesses yet
         for(var i=0; i<wordLen;i++){
@@ -59,7 +59,8 @@ function displaygame(letter, wordLen){
 };
 
 function solve(word, solvedword){
-    var newword;
+    console.log("solve word", word);
+    var newword = '';
     var solved;
     for (var i=0; i<solvedword.length; i++){
         newword += solvedword[i]+' ';
@@ -86,41 +87,45 @@ function game(type){
     return randomWord;
 }
 
+function redLetters(displayWord, originalWord){
+    //put comparison for red letters here
+    return displayWord;
+}
 app.get("/", function(req, res){
     var letter;
     var solved;
     if (!req.session.word){ //game type and word not initialized
+        lettersGuessed =[];
+        guessesLeft = 8;
         res.render("index");
     } else{
-        if (guessesLeft > 1){
+        if (guessesLeft >= 1){
             if(lettersGuessed.length == 0){
                 letter = -1;
             } else{
                 letter = lettersGuessed[lettersGuessed.length-1];
             }
-        hangman = displaygame(letter, req.session.word.length);
-        //check if solved
-        solved = solve(hangman, req.session.word);
-        if (!solved){ //convert to red for missing letters
-            hangman = redletters(hangman, req.session.word);
-            res.render("index", {guess: guessesLeft, guessedLetters: lettersGuessed, gamemode:mode, hangman:hangman.toString()});
-        } else{
-             res.render("index", {guess: guessesLeft, guessedLetters: lettersGuessed, gamemode:mode, hangman:hangman.toString(), solved:solved});
-        }vvvv
-        } else { //last guess
-            letter = lettersGuessed[lettersGuessed.length-1];
-            hangman = displaygame(letter, req.session.word.length);
+            hangman = displayGame(letter, req.session.word.length);
             //check if solved
             solved = solve(hangman, req.session.word);
-            if (!solved){ //convert to red for missing letters
-                hangman = redletters(hangman, req.session.word);
+            if (!solved && guessesLeft == 0 ) { //convert to red for missing letters
+                hangman = redLetters(hangman, req.session.word);
+                res.render("index", {guess: guessesLeft, guessedLetters: lettersGuessed, gamemode:mode, hangman:hangman.toString(), solved:true, lost:true});
+            } else if(!solved){
+                res.render("index", {guess: guessesLeft, guessedLetters: lettersGuessed, gamemode:mode, hangman:hangman.toString(), solved:solved, lost:false});
             }
-            res.render("index", {guess: guessesLeft, guessedLetters: lettersGuessed, gamemode: mode, hangman:hangman, solved: solved});    
-        }
-    }   
-})
+            else{
+                res.render("index", {guess: guessesLeft, guessedLetters: lettersGuessed, gamemode:mode, hangman:hangman.toString(), solved:true, lost:false});
+            }
+        }  
+}});
 
 app.post("/", function(req, res){
+    if (req.body.status){
+        //delete session variable and redirect to /
+        req.session.destroy();
+        res.redirect("/");
+    }
     if (req.body.mode){ //call mode function to get word and set it
         randomWord = game(req.body.mode).toUpperCase();
         console.log(randomWord);

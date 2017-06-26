@@ -28,8 +28,22 @@
         </section>
         <section class="game">
             <form method="POST" action="/">
+            {{#solved}}
+                {{#lost}}
+                    <p>You lose!  Play again?</p>
+                    <input type="hidden" name="status" value="lost">
+                    <input type="submit">
+                {{/lost}}     
+                {{^lost}}
+                    <p>You win! Play again?</p>
+                    <input type="hidden" name="status" value="win">
+                    <input type="submit">
+                {{/lost}}
+            {{/solved}}
+            {{^solved}}
                 <input type="text" name="choice">
                 <input type="submit">
+            {{/solved}}
             </form>
         </section>
         {{/gamemode}}
