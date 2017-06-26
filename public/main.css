@@ -21,7 +21,30 @@
 }
 .hangman{
     font-size: 80px;
+    text-align: center;
+    margin-top: 10%;
 }
 #red{
     color: red;
+}
+.output h3{
+    margin: 0 3%;
+}
+.output{
+    display: flex;
+    justify-content: center;
+}
+.game{
+    text-align: center;
+}
+.letters{
+    text-align: center;
+}
+.start{
+    margin-top: 15%;
+    display: flex;
+    justify-content: center;
+}
+.letters_input{
+    margin: 25px 3% 5px;
 }
