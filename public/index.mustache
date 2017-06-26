@@ -23,6 +23,11 @@
         </section>
         {{/gamemode}}
         {{#gamemode}}
+        {{#broken}}
+            <section class="errors">
+                <h3>{{msg}}</h3>
+            </section>
+        {{/broken}}
         <section class="hangman">
             {{#hangman}}{{{.}}}{{/hangman}}
         </section>

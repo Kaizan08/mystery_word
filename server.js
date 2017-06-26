@@ -7,11 +7,12 @@ const app = express();
 const port = process.env.PORT || 3000;
 const fs = require('fs');
 const words = fs.readFileSync("/usr/share/dict/words", "utf-8").toLowerCase().split("\n");
+var expressValidator = require('express-validator');
 
 app.engine("mustache", mustacheExpress());
 app.set("views","./public");
 app.set("view engine", "mustache");
-
+app.use(expressValidator());
 
 //Middleware
 app.use("/", express.static("./public"));
@@ -25,7 +26,7 @@ var mode;
 var randomWord;
 var hangman;
 
-function displayGame(letter, wordLen){
+function displayGame(wordLen, letter){
     var display = '';
     if(letter == -1){ //no guesses yet
         for(var i=0; i<wordLen;i++){
@@ -118,7 +119,7 @@ app.get("/", function(req, res){
             } else{
                 letter = lettersGuessed[lettersGuessed.length-1];
             }
-            hangman = displayGame(letter, req.session.word.length);
+            hangman = displayGame(req.session.word.length, letter);
             //check if solved
             console.log(hangman);
             solved = solve(hangman, req.session.word);
@@ -141,6 +142,7 @@ app.post("/", function(req, res){
         req.session.destroy();
         res.redirect("/");
     }
+
     if (req.body.mode){ //call mode function to get word and set it
         randomWord = game(req.body.mode).toUpperCase();
         console.log(randomWord);
@@ -148,17 +150,29 @@ app.post("/", function(req, res){
         mode = req.body.mode;
         res.redirect("/");
     } else{
-        console.log(req.body.choice.toUpperCase());
+        req.checkBody("choice", "You must enter uppercase letter!").isAlpha();
+        req.checkBody("choice", "You must enter one letter!").isLength({max:1});
+        req.checkBody("choice", "You must enter a letter!").notEmpty();
+        
+        var errors = req.validationErrors();
+        if (errors) {
+            res.render("index",{broken: errors,gamemode:mode,guess: guessesLeft, guessedLetters: lettersGuessed, hangman: hangman});
+        }
+        else{
         //check for valid letter
-        if (lettersGuessed.length > 0 & lettersGuessed.indexOf(req.body.choice.toUpperCase()) == -1){
-            lettersGuessed.push(req.body.choice.toUpperCase());
-            res.redirect("/");
-        } else if(lettersGuessed.length == 0){
-            lettersGuessed.push(req.body.choice.toUpperCase());
-            res.redirect("/");
-        } else {
-            res.redirect("/");
-            //print error message duplicating letters already in array
+            if (lettersGuessed.length > 0 & lettersGuessed.indexOf(req.body.choice.toUpperCase()) == -1){
+
+                lettersGuessed.push(req.body.choice.toUpperCase());
+                res.redirect("/");
+            } else if(lettersGuessed.length == 0){
+
+                lettersGuessed.push(req.body.choice.toUpperCase());
+                res.redirect("/");
+            } else {
+
+                res.redirect("/");
+                //print error message duplicating letters already in array
+            }
         }
     }
 })
