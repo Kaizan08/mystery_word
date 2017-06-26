@@ -58,6 +58,22 @@ function displaygame(letter, wordLen){
 }
 };
 
+function solve(word, solvedword){
+    var newword;
+    var solved;
+    for (var i=0; i<solvedword.length; i++){
+        newword += solvedword[i]+' ';
+    }
+    console.log(word);
+    console.log(newword);
+    if(word == newword){
+        solved = true;
+    } else{
+        solved = false;
+    }
+    return solved;
+}
+
 function game(type){
     if (type == 'Easy'){
         var word = words.filter(function(str){return (str.length >= 4 & str.length <= 6);});
@@ -72,7 +88,8 @@ function game(type){
 
 app.get("/", function(req, res){
     var letter;
-    if (!req.session.word){
+    var solved;
+    if (!req.session.word){ //game type and word not initialized
         res.render("index");
     } else{
         if (guessesLeft > 1){
@@ -82,12 +99,23 @@ app.get("/", function(req, res){
                 letter = lettersGuessed[lettersGuessed.length-1];
             }
         hangman = displaygame(letter, req.session.word.length);
-        res.render("index", {guess: guessesLeft, guessedLetters: lettersGuessed, gamemode:mode, hangman:hangman.toString()});
-        } else {
+        //check if solved
+        solved = solve(hangman, req.session.word);
+        if (!solved){ //convert to red for missing letters
+            hangman = redletters(hangman, req.session.word);
+            res.render("index", {guess: guessesLeft, guessedLetters: lettersGuessed, gamemode:mode, hangman:hangman.toString()});
+        } else{
+             res.render("index", {guess: guessesLeft, guessedLetters: lettersGuessed, gamemode:mode, hangman:hangman.toString(), solved:solved});
+        }vvvv
+        } else { //last guess
             letter = lettersGuessed[lettersGuessed.length-1];
             hangman = displaygame(letter, req.session.word.length);
-            console.log(req.session.word);
-            res.render("index", {guess: guessesLeft, guessedLetters: lettersGuessed, gamemode: mode, hangman:req.session.word});    
+            //check if solved
+            solved = solve(hangman, req.session.word);
+            if (!solved){ //convert to red for missing letters
+                hangman = redletters(hangman, req.session.word);
+            }
+            res.render("index", {guess: guessesLeft, guessedLetters: lettersGuessed, gamemode: mode, hangman:hangman, solved: solved});    
         }
     }   
 })
