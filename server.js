@@ -54,20 +54,17 @@ function displayGame(wordLen, letter){
             return display; 
         } else { //decrement guesses left
             guessesLeft -= 1;
+            return hangman; //no correct guess, so do not redraw display again
         }
-    return hangman;
 }
 };
 
 function solve(word, solvedword){
-    console.log("solve word", word);
     var newword = '';
     var solved;
     for (var i=0; i<solvedword.length; i++){
         newword += solvedword[i]+' ';
     }
-    console.log(word);
-    console.log(newword);
     if(word == newword){
         solved = true;
     } else{
@@ -121,9 +118,7 @@ app.get("/", function(req, res){
             }
             hangman = displayGame(req.session.word.length, letter);
             //check if solved
-            console.log(hangman);
             solved = solve(hangman, req.session.word);
-            console.log(guessesLeft);
             if (!solved && guessesLeft == 0 ) { //convert to red for missing letters
                 hangman = redLetters(hangman, req.session.word);
                 res.render("index", {guess: guessesLeft, guessedLetters: lettersGuessed, gamemode:mode, hangman:hangman.toString(), solved:true, lost:true});
@@ -142,10 +137,8 @@ app.post("/", function(req, res){
         req.session.destroy();
         res.redirect("/");
     }
-
     if (req.body.mode){ //call mode function to get word and set it
         randomWord = game(req.body.mode).toUpperCase();
-        console.log(randomWord);
         req.session.word = randomWord.toUpperCase();
         mode = req.body.mode;
         res.redirect("/");

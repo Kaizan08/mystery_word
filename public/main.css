@@ -22,7 +22,7 @@
 .hangman{
     font-size: 80px;
     text-align: center;
-    margin-top: 10%;
+    margin-top: 5%;
 }
 #red{
     color: red;
@@ -47,4 +47,12 @@
 }
 .letters_input{
     margin: 25px 3% 5px;
+}
+.errors{
+    text-align: center;
+    font-size: 36px;
+    color: darkgreen
+}
+body{
+    background-color: lightgrey;
 }
