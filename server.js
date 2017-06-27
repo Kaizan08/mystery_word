@@ -152,19 +152,18 @@ app.post("/", function(req, res){
             res.render("index",{broken: errors,gamemode:mode,guess: guessesLeft, guessedLetters: lettersGuessed, hangman: hangman});
         }
         else{
-        //check for valid letter
             if (lettersGuessed.length > 0 & lettersGuessed.indexOf(req.body.choice.toUpperCase()) == -1){
-
                 lettersGuessed.push(req.body.choice.toUpperCase());
                 res.redirect("/");
             } else if(lettersGuessed.length == 0){
-
                 lettersGuessed.push(req.body.choice.toUpperCase());
                 res.redirect("/");
             } else {
-
-                res.redirect("/");
-                //print error message duplicating letters already in array
+                var text = {"msg":"Please enter a letter that has not already been used."};
+                console.log(mode);
+                console.log(lettersGuessed);
+                console.log(hangman);
+                res.render("index",{broken:text, gamemode:mode, guess:guessesLeft, guessedLetters:lettersGuessed, hangman:hangman});
             }
         }
     }
